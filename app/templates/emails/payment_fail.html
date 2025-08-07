@@ -1,0 +1,31 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Payment Failed{% endblock %}
+
+{% block header_title %}Payment Unsuccessful{% endblock %}
+
+{% block content %}
+<p>Hello {{ first_name }},</p>
+
+<p>Unfortunately, we were unable to process your recent payment for your subscription.</p>
+
+<div class="highlight" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <strong>Payment Attempt Details:</strong><br>
+    Amount: {{ amount }} {{ currency }}<br>
+    {% comment %} Transaction ID: {{ transaction_id }}<br> {% endcomment %}
+    Date: {{ payment_date }}
+</div>
+
+<p>Please update your payment information to continue enjoying our services without interruption.</p>
+
+{% if update_payment_url %}
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{{ update_payment_url }}" class="primary-btn" style="background-color: #dc3545; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none;">Update Payment Method</a>
+</div>
+{% endif %}
+
+<p>If you have any questions or need assistance, please contact our support team.</p>
+
+<p>Thank you for your prompt attention to this matter.</p>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Email Verification OTP{% endblock %}
+
+{% block header_title %}Verify Your Email Address{% endblock %}
+
+{% block content %}
+<p>Hello {{ first_name }},</p>
+
+<p>Thank you for registering! To complete your account setup and gain full access to our platform, please verify your email address by clicking the button below:</p>
+
+<b><p>OTP: {{otp}}</p></b>
+
+<div class="warning">
+    <strong>Important:</strong> OTP will expire in {{ expiration_minutes|default(30) }} minutes for security reasons.
+</div>
+
+<p>If you didn't create an account, you can safely ignore this email.</p>
+{% endblock %}

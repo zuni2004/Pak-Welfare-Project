@@ -1,0 +1,15 @@
+DO
+$$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'texagon') THEN
+        CREATE ROLE texagon WITH LOGIN;
+        ALTER ROLE texagon WITH PASSWORD 'password';
+    END IF;
+END
+$$;
+
+GRANT CONNECT ON DATABASE fastapi_db TO texagon;
+ALTER SCHEMA public OWNER TO texagon;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO texagon;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO texagon;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO texagon;

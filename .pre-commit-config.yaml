@@ -1,0 +1,68 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+        exclude: ^app/alembic/
+      - id: check-added-large-files
+        exclude: ^app/alembic/
+
+  - repo: https://github.com/myint/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        exclude: ^app/alembic/
+        args:
+          - --in-place
+          - --remove-unused-variables
+          - --remove-all-unused-imports
+          - --ignore-init-module-imports
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        exclude: ^app/alembic/
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort (python)
+        exclude: ^app/alembic/
+        args: ["--profile", "black"]
+      - id: isort
+        name: isort (cython)
+        types: [cython]
+        exclude: ^app/alembic/
+      - id: isort
+        name: isort (pyi)
+        types: [pyi]
+        exclude: ^app/alembic/
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        exclude: ^app/alembic/
+        args:
+          [
+            "--per-file-ignores=__init__.py:F401,F403",
+            "--ignore=Q000,Q001,E203,W503",
+            "--max-line-length=150",
+          ]
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        exclude: ^app/alembic/
+        name: bandit
+        args: ["-c", "pyproject.toml", "--skip", "B106"]
+        description: "Bandit is a tool for finding common security issues in Python code"
+        entry: bandit
+        language: python
+        language_version: python3
+        types: [python]
+        additional_dependencies: ["bandit[toml]"]

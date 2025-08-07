@@ -1,0 +1,29 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Payment Successful{% endblock %}
+
+{% block header_title %}Thank You for Your Payment!{% endblock %}
+
+{% block content %}
+<p>Hello {{ first_name }},</p>
+
+<p>We have successfully received your payment. Your account has been credited with <strong>{{ credits }} credits</strong>.</p>
+
+<div class="highlight" style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <strong>Payment Details:</strong><br>
+    Amount: {{ amount }} {{ currency }}<br>
+    Transaction ID: {{ transaction_id }}<br>
+    Date: {{ payment_date }}
+</div>
+
+<p>If you have any questions or need assistance, please feel free to contact our support team.</p>
+
+<p>Thank you for choosing our platform!</p>
+
+{% if login_url %}
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{{ login_url }}" class="primary-btn" style="background-color: #0070f3; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none;">Log in to your account</a>
+</div>
+{% endif %}
+{% endblock %}
+
