@@ -14,7 +14,7 @@ class GuestCreate(GuestBase):
 
 
 class GuestOut(GuestBase):
-    guest_id: UUID
+    id: UUID  
     full_name: str
     phone_number: str
     email: Optional[EmailStr]
@@ -22,4 +22,4 @@ class GuestOut(GuestBase):
     tracking_number: Optional[UUID]
 
     class Config:
-        orm_mode = True
+        from_attributes = True 

@@ -3,18 +3,20 @@ from typing import Optional
 
 class ServiceTypeBase(BaseModel):
     name: str
-    slug: str
+    description: Optional[str] = None
+
+class ServiceTypeCreate(BaseModel):
+    name: str
+    slug: Optional[str] = None
     description: Optional[str] = None
     active: Optional[bool] = True
 
-class ServiceTypeCreate(ServiceTypeBase):
-    pass
-
-class ServiceTypeUpdate(ServiceTypeBase):
-    pass
+class ServiceTypeUpdate(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    description: Optional[str] = None
+    active: Optional[bool] = None
 
 class ServiceTypeOut(ServiceTypeBase):
-    id: UUID4
-
     class Config:
         orm_mode = True
