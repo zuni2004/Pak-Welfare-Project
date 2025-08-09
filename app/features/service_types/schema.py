@@ -19,4 +19,5 @@ class ServiceTypeUpdate(BaseModel):
 
 class ServiceTypeOut(ServiceTypeBase):
     class Config:
-        orm_mode = True
+        from_attributes = True
+

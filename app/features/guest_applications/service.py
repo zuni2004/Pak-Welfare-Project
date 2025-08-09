@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from uuid import uuid4
+from uuid import UUID
 
 from app.models.guest import Guest
 from app.models.noc_application import NOCApplication

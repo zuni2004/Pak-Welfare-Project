@@ -5,7 +5,7 @@ import re
 from rapidfuzz import fuzz
 import os
 from datetime import datetime
-from Cleaning_OCR import preprocess_image_enhanced, extract_text_with_multiple_configs, draw_all_detections
+from .Cleaning_OCR import preprocess_image_enhanced, extract_text_with_multiple_configs, draw_all_detections
 
 def extract_passport_fields(results):
     text_items = []

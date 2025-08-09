@@ -1,73 +1,141 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request
-from sqlalchemy.orm import Session
-from uuid import UUID
+import os
+import cv2
+import tempfile
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from app.features.noc_application.schema import UploadResponse
+from app.features.noc_application.service import process_image
+from app.features.noc_application.schema import NICOPFrontResponse, NICOPBackResponse, OCRResponse
+from app.features.noc_application.nicop_service import process_nicop_front_improved, process_nicop_back_improved
+from app.features.noc_application.schema import PassportRequest, PassportResponse
+from app.features.noc_application.passport_service import process_passport_front
+from .schema import OCRResponse, IqamaData
+from .iqama_service import (preprocess_image_enhanced, extract_text_with_multiple_configs, extract_iqama_fields, draw_all_detections, save_extracted_data)
 
-from app.utils.dependencies import DbSession
-from .service import handle_temp_document_upload, process_uploaded_document
-from .schema import (
-    DocumentUploadResponse, 
-    NICOPFrontOCRResponse, 
-    NICOPBackOCRResponse, 
-    PassportOCRResponse, 
-    IqamaOCRResponse
-)
 
 router = APIRouter(prefix="/noc", tags=["NOC Application"])
 
-@router.post("/upload/{doc_type}", response_model=DocumentUploadResponse)
-def upload_document(
-    guest_id: UUID, 
-    doc_type: str,
-    file: UploadFile = File(...), 
-    db: DbSession
-):
-    valid_types = ["iqama", "passport", "nicop_front", "nicop_back"]
-    if doc_type not in valid_types:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Invalid document type. Valid types: {', '.join(valid_types)}"
+@router.post("/upload", response_model=UploadResponse)
+async def upload_image(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed.")
+    
+    filename = await process_image(file)
+    return UploadResponse(
+        filename=filename,
+        message="File has been uploaded successfully."
+    )
+
+@router.get("/example")
+async def example():
+    return {"message": "Hello PLEASE WORRKKKKKKKKKKKKKKKKK"}
+
+
+@router.post("/nicop-front", response_model=OCRResponse)
+async def upload_nicop_front(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed.")
+    
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+            temp_path = tmp.name
+            content = await file.read()
+            tmp.write(content)
+
+        output_image_path = temp_path + "_vis.jpg"
+
+        result = process_nicop_front_improved(temp_path, output_image_path)
+        os.remove(temp_path)
+
+        if not result:
+            raise HTTPException(status_code=500, detail="OCR failed to extract data.")
+
+        return OCRResponse(
+            message="NICOP front side processed successfully.",
+            data=result
         )
-    
-    if not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="Only image files are allowed")
-    
-    if file.size and file.size > 10 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File size too large (max 10MB)")
-    
-    return handle_temp_document_upload(guest_id, file, doc_type, db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/process-ocr/{doc_type}")
-def process_document_ocr(
-    guest_id: UUID,
-    doc_type: str,
-    db: DbSession
-):
-    valid_types = ["iqama", "passport", "nicop_front", "nicop_back"]
-    if doc_type not in valid_types:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Invalid document type. Valid types: {', '.join(valid_types)}"
+
+@router.post("/nicop-back", response_model=OCRResponse)
+async def upload_nicop_back(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed.")
+
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+            temp_path = tmp.name
+            content = await file.read()
+            tmp.write(content)
+
+        output_image_path = temp_path + "_vis.jpg"
+
+        result = process_nicop_back_improved(temp_path, output_image_path)
+        os.remove(temp_path) 
+
+        if not result:
+            raise HTTPException(status_code=500, detail="OCR failed to extract data.")
+
+        return OCRResponse(
+            message="NICOP back side processed successfully.",
+            data=result
         )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
-    return process_uploaded_document(guest_id, doc_type, db)
 
-@router.post("/ocr/nicop/front", response_model=NICOPFrontOCRResponse)
-def get_nicop_front_data(guest_id: UUID, db: DbSession):
-    return process_uploaded_document(guest_id, "nicop_front", db)
+@router.post("/passport-front", response_model=OCRResponse)
+async def upload_passport_front(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed.")
 
-@router.post("/ocr/nicop/back", response_model=NICOPBackOCRResponse)
-def get_nicop_back_data(guest_id: UUID, db: DbSession):
-    return process_uploaded_document(guest_id, "nicop_back", db)
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+            temp_path = tmp.name
+            content = await file.read()
+            tmp.write(content)
 
-@router.post("/ocr/passport", response_model=PassportOCRResponse)
-def get_passport_data(guest_id: UUID, db: DbSession):
-    return process_uploaded_document(guest_id, "passport", db)
+        output_image_path = temp_path + "_vis.jpg"
 
-@router.post("/ocr/iqama", response_model=IqamaOCRResponse)
-def get_iqama_data(guest_id: UUID, db: DbSession):
-    return process_uploaded_document(guest_id, "iqama", db)
+        result = process_passport_front(temp_path, output_image_path)
 
-@router.get("/status/{guest_id}")
-def get_noc_status(guest_id: UUID, db: DbSession):
-    from .service import get_noc_application_status
-    return get_noc_application_status(guest_id, db)
+        os.remove(temp_path)
+
+        if not result:
+            raise HTTPException(status_code=500, detail="OCR failed to extract data.")
+
+        return OCRResponse(
+            message="Passport front side processed successfully.",
+            data=result
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.post("/Iqama-Front", response_model=OCRResponse)
+async def upload_iqama(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed.")
+
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+            temp_path = tmp.name
+            content = await file.read()
+            tmp.write(content)
+
+        original_image, cleaned_image = preprocess_image_enhanced(temp_path)
+
+        extracted_results = extract_text_with_multiple_configs(cleaned_image)
+
+        extracted_data = extract_iqama_fields(extracted_results)
+
+        os.remove(temp_path)
+
+        return OCRResponse(
+            message="Iqama processed successfully.",
+            data=IqamaData(**extracted_data)
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

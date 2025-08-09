@@ -1,21 +1,13 @@
-# features/noc_application/schema.py
 from pydantic import BaseModel
-from uuid import UUID
-from typing import List, Optional
-from datetime import datetime
+from typing import Optional, List, Dict, Any
 
-class DocumentUploadResponse(BaseModel):
-    tracking_number: UUID
-    document_type: str
-    status: str
-    file_path: Optional[str] = None  
-    message: Optional[str] = None
 
-class NICOPFrontOCRRequest(BaseModel):
-    image_path: str
-    output_path: Optional[str] = None
+class UploadResponse(BaseModel):
+    filename: str
+    message: str
+    
 
-class NICOPFrontOCRResponse(BaseModel):
+class NICOPFrontResponse(BaseModel):
     name: str
     father_name: str
     gender: str
@@ -25,19 +17,21 @@ class NICOPFrontOCRResponse(BaseModel):
     date_of_issue: str
     date_of_expiry: str
 
-class NICOPBackOCRRequest(BaseModel):
-    image_path: str
-    output_path: Optional[str] = None
 
-class NICOPBackOCRResponse(BaseModel):
+class NICOPBackResponse(BaseModel):
     present_address: str
     permanent_address: str
+    raw_text: List[str]
 
-class PassportOCRRequest(BaseModel):
+
+class OCRResponse(BaseModel):
+    message: str
+    data: Dict[str, Any]
+
+class PassportRequest(BaseModel):
     image_path: str
-    output_path: Optional[str] = None
 
-class PassportOCRResponse(BaseModel):
+class PassportResponse(BaseModel):
     type: str
     country_code: str
     passport_number: str
@@ -55,30 +49,18 @@ class PassportOCRResponse(BaseModel):
     tracking_number: str
     booklet_number: str
     mrz_lines: List[str]
-
-class IqamaOCRRequest(BaseModel):
-    image_path: str
-    output_path: Optional[str] = None
-
-class IqamaOCRResponse(BaseModel):
+    
+class IqamaData(BaseModel):
     english_name: Optional[str]
     iqama_number_arabic: Optional[str]
     iqama_number_english: Optional[str]
     issue_date: Optional[str]
     expiry_date: Optional[str]
 
-class NOCApplicationCreate(BaseModel):
-    guest_id: UUID
-    burial_location: Optional[str] = None 
-
-class NOCApplicationOut(BaseModel):
-    tracking_number: UUID
-    guest_id: UUID
-    status: str
-    burial_location: Optional[str]
-    documents_uploaded: bool
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True  
+class OCRResponse(BaseModel):
+    message: str
+    data: IqamaData
+    cleaned_image_path: Optional[str] = None
+    ocr_visualization_path: Optional[str] = None
+    text_output_path: Optional[str] = None
+    structured_output_path: Optional[str] = None

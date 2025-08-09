@@ -15,21 +15,29 @@ router = APIRouter(prefix="/guest-application", tags=["Guest Application"])
 
 
 @router.post("/", response_model=GuestOut, status_code=status.HTTP_201_CREATED)
-def submit_guest_application(payload: GuestCreate, request: Request, db: DbSession):
+async def submit_guest_application(payload: GuestCreate, request: Request, db: DbSession):
     ip_address = request.client.host
     return create_guest_application(db, payload, ip_address)
 
 
 @router.get("/", response_model=list[GuestOut])
-def list_guest_applications(db: DbSession):
+async def list_guest_applications(db: DbSession):
     return get_all_guests(db)
 
 
 @router.get("/{guest_id}", response_model=GuestOut)
-def get_guest_application(guest_id: UUID, db: DbSession):
+async def get_guest_application(guest_id: UUID, db: DbSession):
     return get_guest_by_id(db, guest_id)
 
 
 @router.delete("/{guest_id}")
-def remove_guest_application(guest_id: UUID, db: DbSession):
+async def remove_guest_application(guest_id: UUID, db: DbSession):
     return delete_guest_application(db, guest_id)
+# from fastapi import APIRouter
+
+# router = APIRouter(prefix="/guest-application", tags=["Guest Application"])
+
+
+# @router.get("/example")
+# async def example():
+#     return {"message": "Hello"}

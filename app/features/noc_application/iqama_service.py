@@ -104,12 +104,6 @@ def extract_text_with_multiple_configs(image):
     return filtered_results
 
 def extract_iqama_fields(results):
-    """
-    Extract specific fields from Iqama OCR results:
-    - English Name
-    - Iqama Number (Arabic and English)
-    - Issue Date and Expiry Date
-    """
     extracted_data = {
         'english_name': None,
         'iqama_number_arabic': None,
@@ -209,7 +203,6 @@ def draw_all_detections(image, results, output_path):
     print(f"Detection visualization saved to: {output_path}")
 
 def save_extracted_data(extracted_data, output_path):
-    """Save the extracted structured data to a file"""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, "w", encoding="utf-8") as f:
