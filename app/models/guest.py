@@ -12,7 +12,7 @@ class Guest(Base, TimestampMixin):
     phone_number = Column(String(50), nullable=False)
     email = Column(String(255), nullable=True)
     ip_address = Column(String(45), nullable=True)
-    noc_application = relationship("NOCApplication", back_populates="guest", uselist=False)
+    noc_application = relationship("NOCApplication", back_populates="guest", uselist=False, cascade="all, delete")
     tracking_application = relationship("TrackingApplication", back_populates="guest", uselist=False)
 
 

@@ -7,7 +7,7 @@ from .service import (
     create_guest_application,
     get_guest_by_id,
     get_all_guests,
-    delete_guest_application,
+    delete_guest_by_tracking_number
 )
 from app.utils.dependencies import DbSession
 
@@ -31,13 +31,5 @@ async def get_guest_application(guest_id: UUID, db: DbSession):
 
 
 @router.delete("/{guest_id}")
-async def remove_guest_application(guest_id: UUID, db: DbSession):
-    return delete_guest_application(db, guest_id)
-# from fastapi import APIRouter
-
-# router = APIRouter(prefix="/guest-application", tags=["Guest Application"])
-
-
-# @router.get("/example")
-# async def example():
-#     return {"message": "Hello"}
+async def delete_guest_by_tracking_number_noc(tracking_number: UUID, db: DbSession):
+    return delete_guest_by_tracking_number(db, tracking_number)

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
 
@@ -21,15 +21,6 @@ class NICOPFrontResponse(BaseModel):
 class NICOPBackResponse(BaseModel):
     present_address: str
     permanent_address: str
-    raw_text: List[str]
-
-
-class OCRResponse(BaseModel):
-    message: str
-    data: Dict[str, Any]
-
-class PassportRequest(BaseModel):
-    image_path: str
 
 class PassportResponse(BaseModel):
     type: str
@@ -48,19 +39,9 @@ class PassportResponse(BaseModel):
     issuing_authority: str
     tracking_number: str
     booklet_number: str
-    mrz_lines: List[str]
-    
-class IqamaData(BaseModel):
-    english_name: Optional[str]
-    iqama_number_arabic: Optional[str]
-    iqama_number_english: Optional[str]
-    issue_date: Optional[str]
-    expiry_date: Optional[str]
+    # mrz_lines: List[str]
 
-class OCRResponse(BaseModel):
-    message: str
-    data: IqamaData
-    cleaned_image_path: Optional[str] = None
-    ocr_visualization_path: Optional[str] = None
-    text_output_path: Optional[str] = None
-    structured_output_path: Optional[str] = None
+class IqamaData(BaseModel):
+    # english_name: Optional[str] = Field(None, description="Name in English")
+    # arabic_name: Optional[str] = Field(None, description="Name in Arabic")
+    iqama_number_arabic: Optional[str] = Field(None, description="Iqama number in Arabic digits")

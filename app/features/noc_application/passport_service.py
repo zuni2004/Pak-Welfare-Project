@@ -5,7 +5,7 @@ import re
 from rapidfuzz import fuzz
 import os
 from datetime import datetime
-from .Cleaning_OCR import preprocess_image_enhanced, extract_text_with_multiple_configs, draw_all_detections
+from .Cleaning_OCR import preprocess_image_enhanced, extract_text_with_multiple_configs
 
 def extract_passport_fields(results):
     text_items = []
@@ -262,7 +262,7 @@ def parse_date(text):
             continue
     return None
 
-def process_passport_front(image_path, output_image_path):
+def process_passport_front(image_path):
     original_image, processed_image = preprocess_image_enhanced(image_path, resize_factor=2.5)
     results = extract_text_with_multiple_configs(processed_image)
 
@@ -272,53 +272,4 @@ def process_passport_front(image_path, output_image_path):
 
     passport_info = extract_passport_fields(results)
 
-    print("\n" + "="*70)
-    print("         PASSPORT FRONT EXTRACTION RESULTS")
-    print("="*70)
-    for k, v in passport_info.items():
-        print(f"{k.replace('_', ' ').title()}: {v}")
-    print("="*70)
-
     return passport_info
-
-# if __name__ == "__main__":
-#     front_image_path = "Passport_Pictures/10.jpeg"
-#     cleaned_output_path = "Passport_Results/Cleaned/10_cleaned.jpeg"
-#     ocr_output_path = "Passport_Results/OCR_Visualized/10_ocr.jpeg"
-#     text_output_path = "Passport_Results/Text/10_text.txt"
-
-#     try:
-#         print("Starting passport front image processing...")
-#         original_image, cleaned_image = preprocess_image_enhanced(front_image_path, resize_factor=2.5)
-        
-#         os.makedirs(os.path.dirname(cleaned_output_path), exist_ok=True)
-#         cv2.imwrite(cleaned_output_path, cleaned_image)
-#         print(f"Cleaned image saved to: {cleaned_output_path}")
-        
-#         extracted_results = extract_text_with_multiple_configs(cleaned_image)
-        
-#         if not extracted_results:
-#             print("No text detected in the passport image.")
-#             exit()
-        
-#         os.makedirs(os.path.dirname(text_output_path), exist_ok=True)
-#         with open(text_output_path, "w", encoding="utf-8") as f:
-#             for i, result in enumerate(extracted_results):
-#                 bbox, text, confidence = result[:3]
-#                 f.write(f"{i+1}: {text.strip()} (confidence: {confidence:.3f})\n")
-#         print(f"Extracted text saved to: {text_output_path}")
-        
-#         draw_all_detections(original_image, extracted_results, ocr_output_path)
-#         print(f"OCR visualization saved to: {ocr_output_path}")
-        
-#         passport_info = extract_passport_fields(extracted_results)
-
-#         print("\n" + "="*70)
-#         print("         PASSPORT FRONT EXTRACTION RESULTS")
-#         print("="*70)
-#         for k, v in passport_info.items():
-#             print(f"{k.replace('_', ' ').title()}: {v}")
-#         print("="*70)
-        
-#     except Exception as e:
-#         print(f"Passport processing pipeline failed: {e}")

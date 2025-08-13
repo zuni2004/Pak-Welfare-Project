@@ -17,9 +17,9 @@ class GuestOut(GuestBase):
     id: UUID  
     full_name: str
     phone_number: str
-    email: Optional[EmailStr]
+    email: Optional[EmailStr] = None
     ip_address: Optional[str]
-    tracking_number: Optional[UUID]
+    tracking_number: Optional[UUID] = None
 
     class Config:
         from_attributes = True 

@@ -5,7 +5,7 @@ import re
 from rapidfuzz import fuzz
 import os
 from datetime import datetime
-from .Cleaning_OCR import preprocess_image_enhanced, extract_text_with_multiple_configs, draw_all_detections
+from .Cleaning_OCR import preprocess_image_enhanced, extract_text_with_multiple_configs
 
 def process_nicop_front_improved(image_path, output_image_path):
     try:
@@ -13,39 +13,15 @@ def process_nicop_front_improved(image_path, output_image_path):
             print(f"Error: Image file '{image_path}' not found!")
             return None
         
-        print("Enhanced preprocessing...")
         original_image, processed_image = preprocess_image_enhanced(image_path, resize_factor=2.5)
-        print(f"Image preprocessed. Shape: {processed_image.shape}")
-        
-        print("Multi-config OCR extraction...")
         results = extract_text_with_multiple_configs(processed_image)
         
         if not results:
             print("No text extracted!")
             return None
         
-        print(f"Total processed results: {len(results)}")
-        
-        try:
-            draw_all_detections(original_image, results, output_image_path)
-        except Exception as e:
-            print(f"Could not save visualization: {e}")
-        
         extracted_info = extract_nicop_fields_improved(results)
-        
-        print("\n" + "="*70)
-        print("         IMPROVED NICOP FRONT EXTRACTION RESULTS")
-        print("="*70)
-        print(f"Name:                    {extracted_info['name']}")
-        print(f"Father's Name:           {extracted_info['father_name']}")
-        print(f"Gender:                  {extracted_info['gender']}")
-        print(f"Country of Stay:         {extracted_info['country']}")
-        print(f"Identity Number (CNIC):  {extracted_info['cnic_number']}")
-        print(f"Date of Birth:           {extracted_info['date_of_birth']}")
-        print(f"Date of Issue:           {extracted_info['date_of_issue']}")
-        print(f"Date of Expiry:          {extracted_info['date_of_expiry']}")
-        print("="*70)
-        
+
         return extracted_info
         
     except Exception as e:
@@ -73,10 +49,7 @@ def extract_nicop_fields_improved(results):
     
     all_texts = [item['text'] for item in text_items]
     full_text = ' '.join(all_texts)
-    
-    print(f"\nExtracted texts: {all_texts}")
-    print(f"Combined text: {full_text}")
-    
+  
     info = {
         'name': 'Not Found',
         'father_name': 'Not Found',
@@ -94,14 +67,12 @@ def extract_nicop_fields_improved(results):
         digits = re.sub(r'[^\d]', '', candidate)
         if len(digits) == 13:
             info['cnic_number'] = f"{digits[:5]}-{digits[5:12]}-{digits[12]}"
-            print(f"Found CNIC: {info['cnic_number']}")
             break
 
     if info['cnic_number'] == 'Not Found':
         matches = re.findall(r'\b\d{13}\b', full_text)
         for match in matches:
             info['cnic_number'] = f"{match[:5]}-{match[5:12]}-{match[12]}"
-            print(f"Found CNIC (fallback): {info['cnic_number']}")
             break
 
     date_pattern = r'(\d{1,2})(?:[.\-/, ]+)(\d{1,2})(?:[.\-/,]+)(\d{4})|(\d{8})'
@@ -166,7 +137,6 @@ def extract_nicop_fields_improved(results):
         text_upper = item['text'].upper().strip()
         if text_upper in ['M', 'F', 'MALE', 'FEMALE']:
             info['gender'] = 'M' if text_upper in ['M', 'MALE'] else 'F'
-            print(f"Found gender: {info['gender']}")
             break
     
     country_mappings = {
@@ -182,7 +152,6 @@ def extract_nicop_fields_improved(results):
     for country_key, country_value in country_mappings.items():
         if country_key in full_text_lower:
             info['country'] = country_value
-            print(f"Found country: {country_value}")
             break
     
     name_found = False
@@ -216,19 +185,15 @@ def extract_nicop_fields_improved(results):
                     if 'name' in context_before and 'father' not in context_before and not name_found:
                         info['name'] = text
                         name_found = True
-                        print(f"Found name: {text}")
                     elif 'father' in context_before or ('name' in context_before and name_found) and not father_name_found:
                         info['father_name'] = text
                         father_name_found = True
-                        print(f"Found father's name: {text}")
                     elif not name_found:
                         info['name'] = text
                         name_found = True
-                        print(f"Found potential name: {text}")
                     elif not father_name_found:
                         info['father_name'] = text
                         father_name_found = True
-                        print(f"Found potential father's name: {text}")
     
     return info
 
@@ -239,20 +204,13 @@ def process_nicop_back_improved(image_path, output_image_path):
             print(f"Error: Image file '{image_path}' not found!")
             return None
         
-        print("Enhanced preprocessing (back side)...")
         original_image, processed_image = preprocess_image_enhanced(image_path, resize_factor=2.5)
         
-        print("Multi-config OCR extraction (back side)...")
         results = extract_text_with_multiple_configs(processed_image)
         
         if not results:
             print("No text extracted from back!")
             return None
-        
-        try:
-            draw_all_detections(original_image, results, output_image_path)
-        except Exception as e:
-            print(f"Could not save back visualization: {e}")
         
         text_items = []
         for result in results:
@@ -268,9 +226,7 @@ def process_nicop_back_improved(image_path, output_image_path):
         text_items.sort(key=lambda item: item['y'])
         all_texts = [item['text'] for item in text_items]
         combined_text = ' '.join(all_texts)
-        
-        print(f"Back side combined text: {combined_text}")
-        
+                
         def clean_address(address):
             address = re.sub(r'^\s*\d{5}[-\s]?\d{7}[-\s]?\d\s*', '', address)
             address = re.sub(r'[\s;:,-]*\d{11,15}$', '', address)
@@ -310,18 +266,10 @@ def process_nicop_back_improved(image_path, output_image_path):
                 permanent_address = permanent_address.replace('H.No.', 'H.No.').replace('  ', ' ')
                 permanent_address = clean_address(permanent_address)
                 break
-        
-        print("\n" + "="*70)
-        print("         IMPROVED NICOP BACK EXTRACTION RESULTS")
-        print("="*70)
-        print(f"Present Address:   {present_address}")
-        print(f"Permanent Address: {permanent_address}")
-        print("="*70)
-        
+     
         return {
             'present_address': present_address,
             'permanent_address': permanent_address,
-            'raw_text': all_texts
         }
         
     except Exception as e:
@@ -365,27 +313,3 @@ def clean_ocr_text(text):
         cleaned = cleaned.replace(wrong, correct)
     
     return cleaned
-
-# if __name__ == "__main__":
-#     front_image_path = "NICOP_Pictures/2.jpg"
-#     front_output_path = "NICOP_Results/2.jpeg"
-    
-#     print("Processing NICOP front side with improved approach...")
-#     front_result = process_nicop_front_improved(front_image_path, front_output_path)
-    
-#     # back_image_path = "NICOP_Pictures/8.jpeg"
-#     # back_output_path = "NICOP_Results/improved_back_88.jpeg"
-    
-#     # print("\nProcessing NICOP back side with improved approach...")
-#     # back_result = process_nicop_back_improved(back_image_path, back_output_path)
-    
-#     # if front_result and back_result:
-#     #     combined_result = {**front_result, **back_result}
-#     #     print("\n" + "="*70)
-#     #     print("         COMPLETE IMPROVED NICOP INFORMATION")
-#     #     print("="*70)
-#     #     for key, value in combined_result.items():
-#     #         if key != 'raw_text':
-#     #             formatted_key = key.replace('_', ' ').title()
-#     #             print(f"{formatted_key:<25}: {value}")
-#     #     print("="*70)

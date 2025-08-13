@@ -5,13 +5,14 @@ from uuid import UUID
 from app.models.guest import Guest
 from app.models.noc_application import NOCApplication
 from .schema import GuestCreate
-
+from sqlalchemy import or_, and_
 
 def create_guest_application(db: Session, payload: GuestCreate, ip_address: str) -> Guest:
-    existing_guest = db.query(Guest).filter(
-        or_(Guest.phone_number == payload.phone_number, 
-            Guest.email == payload.email)
-    ).first()
+    filters = [Guest.phone_number == payload.phone_number]
+    if payload.email:
+        filters.append(Guest.email == payload.email)
+
+    existing_guest = db.query(Guest).filter(or_(*filters)).first()
     
     if existing_guest:
         raise HTTPException(
@@ -22,9 +23,8 @@ def create_guest_application(db: Session, payload: GuestCreate, ip_address: str)
     guest = Guest(
         full_name=payload.full_name,
         phone_number=payload.phone_number,
-        email=payload.email,
-        ip_address=ip_address,
-        tracking_number=None  
+        email=payload.email, 
+        ip_address=ip_address
     )
 
     db.add(guest)
@@ -32,6 +32,7 @@ def create_guest_application(db: Session, payload: GuestCreate, ip_address: str)
     db.refresh(guest)
     
     return guest
+
 
 def get_guest_by_id(db: Session, guest_id: UUID):  
     guest = db.query(Guest).filter(Guest.id == guest_id).first()  
@@ -43,8 +44,17 @@ def get_all_guests(db: Session):
     return db.query(Guest).all()
 
 
-def delete_guest_application(db: Session, guest_id):
-    guest = get_guest_by_id(db, guest_id)
+def delete_guest_by_tracking_number(db: Session, tracking_number: UUID):
+    noc_app = db.query(NOCApplication).filter(NOCApplication.tracking_number == tracking_number).first()
+    
+    if not noc_app:
+        raise HTTPException(status_code=404, detail="NOCApplication with this tracking number not found")
+    
+    guest = noc_app.guest
+    if not guest:
+        raise HTTPException(status_code=404, detail="Guest not found for this tracking number")
     db.delete(guest)
     db.commit()
-    return {"message": "Guest deleted"}
+    
+    return {"message": f"Guest with tracking number {tracking_number} deleted"}
+
