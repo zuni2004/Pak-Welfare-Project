@@ -5,13 +5,13 @@ import re
 from rapidfuzz import fuzz
 import os
 from datetime import datetime
-import arabic_reshaper
+# import arabic_reshaper
 from bidi.algorithm import get_display
 import tempfile
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional
-from deep_translator import GoogleTranslator
+# from deep_translator import GoogleTranslator
 
 def preprocess_image_enhanced(image_path, resize_factor=2.5):
     image = cv2.imread(image_path)
@@ -34,26 +34,26 @@ def preprocess_image_enhanced(image_path, resize_factor=2.5):
     
     return image, final_image
 
-def process_arabic_text(text):
-    try:
-        reshaped_text = arabic_reshaper.reshape(text)
-        bidi_text = get_display(reshaped_text)
-        return bidi_text
-    except Exception as e:
-        print(f"Arabic text processing failed: {e}")
-        return text
+# def process_arabic_text(text):
+#     try:
+#         reshaped_text = arabic_reshaper.reshape(text)
+#         bidi_text = get_display(reshaped_text)
+#         return bidi_text
+#     except Exception as e:
+#         print(f"Arabic text processing failed: {e}")
+#         return text
 
-def translate_to_arabic(text):
-    try:
-        cleaned_text = re.sub(r'[^\w\s]', '', text).strip()
-        if not cleaned_text:
-            return None
+# def translate_to_arabic(text):
+#     try:
+#         cleaned_text = re.sub(r'[^\w\s]', '', text).strip()
+#         if not cleaned_text:
+#             return None
         
-        result = GoogleTranslator(source='en', target='ar').translate(cleaned_text)
-        return result
-    except Exception as e:
-        print(f"Translation failed: {e}")
-        return None
+#         result = GoogleTranslator(source='en', target='ar').translate(cleaned_text)
+#         return result
+#     except Exception as e:
+#         print(f"Translation failed: {e}")
+        # return None
 
 def extract_text_with_multiple_configs(image):
     reader = easyocr.Reader(['ar', 'en'], gpu=False) 
