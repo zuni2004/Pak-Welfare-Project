@@ -6,11 +6,14 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from .schema import UploadResponse
 from .service import process_image
 from .schema import NICOPFrontResponse, NICOPBackResponse
-from .nicop_service import process_nicop_front_improved, process_nicop_back_improved
+from app.services.ocr.nicop_service import (
+    process_nicop_front_improved,
+    process_nicop_back_improved,
+)
 from .schema import PassportResponse
-from .passport_service import process_passport_front
+from app.services.ocr.passport_service import process_passport_front
 from .schema import IqamaData
-from .iqama_service import process_iqama_front
+from app.services.ocr.iqama_service import process_iqama_front
 
 
 router = APIRouter(prefix="/noc", tags=["NOC Application"])
