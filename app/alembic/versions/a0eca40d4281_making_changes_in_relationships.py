@@ -1,11 +1,10 @@
-"""Adding relationships
+"""Making changes in relationships
 
-Revision ID: a8d2ddad3578
-Revises: dbc12b012782
-Create Date: 2025-08-10 16:44:27.329187
+Revision ID: a0eca40d4281
+Revises: 8a120171ea24
+Create Date: 2025-08-19 21:57:54.132772
 
 """
-
 from typing import Sequence, Union
 
 from alembic import op
@@ -13,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "a8d2ddad3578"
-down_revision: Union[str, None] = "dbc12b012782"
+revision: str = 'a0eca40d4281'
+down_revision: Union[str, None] = '8a120171ea24'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

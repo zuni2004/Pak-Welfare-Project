@@ -13,7 +13,6 @@ from app.utils.database import Base
 from .base import TimestampMixin
 
 
-
 class Admin(Base, TimestampMixin):
     __tablename__ = "admins"
 

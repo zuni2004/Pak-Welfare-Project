@@ -1,11 +1,10 @@
-"""Adding relationships
+"""Editing the DOCUMENT enum
 
-Revision ID: a8d2ddad3578
-Revises: dbc12b012782
-Create Date: 2025-08-10 16:44:27.329187
+Revision ID: 8a120171ea24
+Revises: 5a91ae2e157a
+Create Date: 2025-08-19 16:08:56.403184
 
 """
-
 from typing import Sequence, Union
 
 from alembic import op
@@ -13,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "a8d2ddad3578"
-down_revision: Union[str, None] = "dbc12b012782"
+revision: str = '8a120171ea24'
+down_revision: Union[str, None] = '5a91ae2e157a'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

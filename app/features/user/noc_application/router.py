@@ -3,36 +3,39 @@ import cv2
 import tempfile
 import time
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from app.features.noc_application.schema import UploadResponse
-from app.features.noc_application.service import process_image
-from app.features.noc_application.schema import NICOPFrontResponse, NICOPBackResponse
-from app.features.noc_application.nicop_service import process_nicop_front_improved, process_nicop_back_improved
-from app.features.noc_application.schema import  PassportResponse
-from app.features.noc_application.passport_service import process_passport_front
+from .schema import UploadResponse
+from .service import process_image
+from .schema import NICOPFrontResponse, NICOPBackResponse
+from .nicop_service import process_nicop_front_improved, process_nicop_back_improved
+from .schema import PassportResponse
+from .passport_service import process_passport_front
 from .schema import IqamaData
-from .iqama_service import (process_iqama_front)
+from .iqama_service import process_iqama_front
 
 
 router = APIRouter(prefix="/noc", tags=["NOC Application"])
+
 
 @router.post("/upload", response_model=UploadResponse)
 async def upload_image(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed.")
-    
+
     filename = await process_image(file)
     return UploadResponse(
-        filename=filename,
-        message="File has been uploaded successfully."
+        filename=filename, message="File has been uploaded successfully."
     )
-    
+
+
 @router.post("/nicop-front", response_model=NICOPFrontResponse)
 async def upload_nicop_front(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed.")
-    
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename)[1]
+        ) as tmp:
             temp_path = tmp.name
             content = await file.read()
             tmp.write(content)
@@ -54,11 +57,12 @@ async def upload_nicop_front(file: UploadFile = File(...)):
             cnic_number=result["cnic_number"],
             date_of_birth=result["date_of_birth"],
             date_of_issue=result["date_of_issue"],
-            date_of_expiry=result["date_of_expiry"]
+            date_of_expiry=result["date_of_expiry"],
         )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/nicop-back", response_model=NICOPBackResponse)
 async def upload_nicop_back(file: UploadFile = File(...)):
@@ -66,7 +70,9 @@ async def upload_nicop_back(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only image files are allowed.")
 
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename)[1]
+        ) as tmp:
             temp_path = tmp.name
             content = await file.read()
             tmp.write(content)
@@ -82,11 +88,12 @@ async def upload_nicop_back(file: UploadFile = File(...)):
 
         return NICOPBackResponse(
             present_address=result["present_address"],
-            permanent_address=result["permanent_address"]
+            permanent_address=result["permanent_address"],
         )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/passport-front", response_model=PassportResponse)
 async def upload_passport_front(file: UploadFile = File(...)):
@@ -94,7 +101,9 @@ async def upload_passport_front(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only image files are allowed.")
 
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename)[1]
+        ) as tmp:
             temp_path = tmp.name
             tmp.write(await file.read())
 
@@ -109,24 +118,28 @@ async def upload_passport_front(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/iqama-front", response_model=IqamaData)
 async def upload_iqama_front(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed.")
-    
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename)[1]
+        ) as tmp:
             temp_path = tmp.name
             tmp.write(await file.read())
-        
+
         result = process_iqama_front(temp_path)
-        
+
         os.remove(temp_path)
-        
+
         if not result:
             raise HTTPException(status_code=500, detail="OCR failed to extract data.")
-        
+
         return IqamaData(**result)
-    
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

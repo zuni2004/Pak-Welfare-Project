@@ -5,7 +5,7 @@ from typing import Optional, List, Dict, Any
 class UploadResponse(BaseModel):
     filename: str
     message: str
-    
+
 
 class NICOPFrontResponse(BaseModel):
     name: str
@@ -21,6 +21,7 @@ class NICOPFrontResponse(BaseModel):
 class NICOPBackResponse(BaseModel):
     present_address: str
     permanent_address: str
+
 
 class PassportResponse(BaseModel):
     type: str
@@ -41,7 +42,10 @@ class PassportResponse(BaseModel):
     booklet_number: str
     # mrz_lines: List[str]
 
+
 class IqamaData(BaseModel):
     # english_name: Optional[str] = Field(None, description="Name in English")
     # arabic_name: Optional[str] = Field(None, description="Name in Arabic")
-    iqama_number_arabic: Optional[str] = Field(None, description="Iqama number in Arabic digits")
+    iqama_number_arabic: Optional[str] = Field(
+        None, description="Iqama number in Arabic digits"
+    )

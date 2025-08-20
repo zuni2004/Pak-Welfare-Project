@@ -15,7 +15,7 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_recycle=3600,
 )
-    
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

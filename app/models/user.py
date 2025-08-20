@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from app.utils.database import Base
 from .base import TimestampMixin
 
+
 class User(Base, TimestampMixin):
     __tablename__ = "users"
 
@@ -21,7 +22,13 @@ class User(Base, TimestampMixin):
     last_password_reset_token_hash = Column(String, nullable=True)
     last_password_reset_at = Column(DateTime(timezone=True), nullable=True)
 
-    noc_applications = relationship("NOCApplication", back_populates="user", uselist=True)
+    noc_applications = relationship(
+        "NOCApplication", back_populates="user", uselist=True
+    )
+
+    documents = relationship(
+        "Document", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User(email='{self.email}', first_name='{self.first_name}', last_name='{self.last_name}')>"

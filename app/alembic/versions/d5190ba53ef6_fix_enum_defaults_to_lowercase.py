@@ -1,11 +1,10 @@
-"""Adding relationships
+"""Fix enum defaults to lowercase
 
-Revision ID: a8d2ddad3578
-Revises: dbc12b012782
-Create Date: 2025-08-10 16:44:27.329187
+Revision ID: d5190ba53ef6
+Revises: a0eca40d4281
+Create Date: 2025-08-19 22:14:10.599620
 
 """
-
 from typing import Sequence, Union
 
 from alembic import op
@@ -13,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "a8d2ddad3578"
-down_revision: Union[str, None] = "dbc12b012782"
+revision: str = 'd5190ba53ef6'
+down_revision: Union[str, None] = 'a0eca40d4281'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

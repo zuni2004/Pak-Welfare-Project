@@ -2,6 +2,15 @@ from pydantic import BaseModel, EmailStr, UUID4
 from typing import Optional
 from uuid import UUID
 
+from app.models.guest import NationalityEnum
+
+
+class CreateGuestRequest(BaseModel):
+    full_name: str
+    phone_number: str
+    email: Optional[EmailStr] = None
+    nationality: Optional[NationalityEnum] = NationalityEnum.pakistani
+
 
 class GuestBase(BaseModel):
     full_name: str
@@ -14,7 +23,7 @@ class GuestCreate(GuestBase):
 
 
 class GuestOut(GuestBase):
-    id: UUID  
+    id: UUID
     full_name: str
     phone_number: str
     email: Optional[EmailStr] = None
@@ -22,4 +31,4 @@ class GuestOut(GuestBase):
     tracking_number: Optional[UUID] = None
 
     class Config:
-        from_attributes = True 
+        from_attributes = True

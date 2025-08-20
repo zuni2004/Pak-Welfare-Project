@@ -16,7 +16,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import JSONB
 
-from app.models import User
+from app.models import Admin
 from app.services.email import send_password_reset_email
 from app.utils.config import settings
 from app.utils.dependencies import CurrentUser, DbSession
@@ -50,7 +50,14 @@ from .service import (
     verify_password_reset_service,
 )
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/admin/auth", tags=["Admin"])
+
+
+@router.get("/login")
+def admin_login():
+    return {"message": "Admin login"}
 
 
 @router.get("/verify-otp", status_code=status.HTTP_200_OK)
@@ -62,7 +69,9 @@ async def verify_otp(
 ):
 
     user = (
-        db.query(User).filter(cast(User.user_data, JSONB)["otp"].astext == otp).first()
+        db.query(Admin)
+        .filter(cast(Admin.user_data, JSONB)["otp"].astext == otp)
+        .first()
     )
 
     if not user:
@@ -281,7 +290,3 @@ async def reset_password(request: Request, db: DbSession, data: ResetPasswordVer
 #     token = await exchange_code_for_tokens(payload.code, db)
 #     set_auth_cookies(response, token.access_token, token.refresh_token)
 #     return CookieTokenResponse(message="Login successful")
-
-@router.post("/")
-async def test(db: DbSession):
-    return print("HI")
